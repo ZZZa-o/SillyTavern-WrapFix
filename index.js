@@ -617,7 +617,7 @@ function buildPanel() {
             </div>
             <div class="${UI.wrStat}" id="${UI.wrStat}"></div>
           </div>
-          <small style="opacity:.7;display:block;margin-top:8px;">插件免费。</small>
+          <small style="opacity:.7;display:block;margin-top:8px;">插件免费，不允许无署名二传。</small>
         </div>
       </div>
     </div>
