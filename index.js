@@ -32,7 +32,7 @@ const RULES = [
   { f: 'extensions', q: '.extension_block>.flexGrow.extension_text_block', d: 'flex:1 1 0;min-width:0;overflow:hidden;white-space:normal' },
   { f: 'extensions', q: '.extension_text_block .extension_name', d: 'white-space:normal;word-break:break-word;display:inline' },
   { f: 'extensions', q: '.extension_block', d: 'display:flex;align-items:center;flex-wrap:nowrap;overflow:hidden' },
-  { f: 'worldbook', q: '.world_entry_form textarea.text_pole', d: 'field-sizing:content;min-height:1lh' },
+  { f: 'worldbook', q: '.world_entry_form textarea.text_pole', d: 'field-sizing:content;min-height:1lh;box-sizing:border-box;white-space:pre-wrap;word-break:normal;overflow-wrap:break-word;overflow-x:hidden' },
   { f: 'popup', q: 'textarea.popup-input.text_pole', d: 'field-sizing:content!important;min-height:1.5em!important;max-height:300px!important;overflow-y:auto!important' },
   { f: 'assistantScript', q: 'div[data-type="script"]>.flex:last-child', d: 'gap:1px!important' },
   { f: 'assistantScript', q: 'div[data-type="script"] .menu_button[title]', d: 'margin:0!important;padding:1px!important' },
