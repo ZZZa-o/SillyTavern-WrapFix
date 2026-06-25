@@ -1,6 +1,5 @@
 import { extension_settings } from '../../../extensions.js';
 import { saveSettingsDebounced } from '../../../../script.js';
-import { P } from './rules.gen.js';
 
 const MODULE = '__awf_v2__';
 (function migrate() {
@@ -20,9 +19,50 @@ const _rnd = () => {
   return s;
 };
 
-const _payload = JSON.parse(atob(P));
-const SEL = _payload.S;
-const RULES = _payload.R;
+const SEL = {
+  qrLabelInput: '.qr--set-itemLabel.text_pole',
+  qrLabelClass: 'qr--set-itemLabel',
+  chat: '#chat',
+  mesText: '.mes_text',
+  chatMesText: '#chat .mes_text',
+  extSettings: '#extensions_settings2',
+};
+
+const RULES = [
+  { f: 'extensions', q: '.extension_block>.flexGrow.extension_text_block', d: 'flex:1 1 0;min-width:0;overflow:hidden;white-space:normal' },
+  { f: 'extensions', q: '.extension_text_block .extension_name', d: 'white-space:normal;word-break:break-word;display:inline' },
+  { f: 'extensions', q: '.extension_block', d: 'display:flex;align-items:center;flex-wrap:nowrap;overflow:hidden' },
+  { f: 'worldbook', q: '.world_entry_form textarea.text_pole', d: 'field-sizing:content;min-height:1lh' },
+  { f: 'popup', q: 'textarea.popup-input.text_pole', d: 'field-sizing:content!important;min-height:1.5em!important;max-height:300px!important;overflow-y:auto!important' },
+  { f: 'assistantScript', q: 'div[data-type="script"]>.flex:last-child', d: 'gap:1px!important' },
+  { f: 'assistantScript', q: 'div[data-type="script"] .menu_button[title]', d: 'margin:0!important;padding:1px!important' },
+  { f: 'assistantScript', q: 'div[data-type="script"] .menu_button[title] i', d: 'margin:0!important;padding:0!important' },
+  { f: 'assistantScript', q: 'div[data-type="script"]>.ml-0\\.5.w-0.grow', d: 'width:auto!important;overflow:visible!important;white-space:normal!important;word-break:break-all!important;flex-shrink:1!important' },
+  { f: 'prompts', q: '#completion_prompt_manager_list .completion_prompt_manager_prompt .completion_prompt_manager_prompt_name', d: 'white-space:normal;word-break:break-word;overflow-wrap:break-word;overflow:visible;text-overflow:unset;min-width:0;display:flex;flex-wrap:nowrap;align-items:center;gap:.3em' },
+  { f: 'prompts', q: '#completion_prompt_manager_list .completion_prompt_manager_prompt .completion_prompt_manager_prompt_name>span[class*="fa-"]', d: 'flex:0 0 auto;align-self:center;line-height:1.4' },
+  { f: 'prompts', q: '#completion_prompt_manager_list .completion_prompt_manager_prompt .completion_prompt_manager_prompt_name a.prompt-manager-inspect-action', d: 'flex:1 1 0;min-width:0;white-space:normal;word-break:break-word;overflow-wrap:break-word;display:block;text-overflow:unset;overflow:visible;line-height:1.4' },
+  { f: 'prompts', q: '#completion_prompt_manager_list .completion_prompt_manager_prompt', d: 'height:auto;min-height:unset;align-items:center' },
+  { id: 'qr_label_w', f: 'qr', q: '.qr--set-itemLabelContainer', d: 'flex:0 0 __V__px!important;width:__V__px!important;min-width:__V__px!important;max-width:__V__px!important;overflow:visible!important;align-self:flex-start!important;display:flex!important;align-items:flex-start!important;box-sizing:border-box!important' },
+  { id: 'qr_ta', f: 'qr', q: '__QTA__', d: 'width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;white-space:pre-wrap!important;word-break:break-word!important;overflow-wrap:break-word!important;resize:none!important;field-sizing:content!important;min-height:28px!important;height:auto!important;line-height:1.4!important;padding:2px 4px!important;font:inherit!important' },
+  { id: 'qr_ta_focus', f: 'qr', q: '__QTA__', e: ':focus', d: 'outline:none!important' },
+  { f: 'qr', q: '#qr--global .qr--item,#qr--chat .qr--item,#qr--character .qr--item', d: 'display:flex;flex-wrap:wrap;align-items:center;height:auto!important;min-height:unset!important' },
+  { f: 'qr', q: '#qr--global .qr--set,#qr--chat .qr--set,#qr--character .qr--set', d: 'height:auto!important;min-height:28px!important;white-space:normal!important;word-break:break-all!important;overflow-wrap:break-word!important;overflow:hidden!important;flex:1 1 0!important;min-width:0!important' },
+  { f: 'qr', q: '#qr--global .qr--set option,#qr--chat .qr--set option,#qr--character .qr--set option', d: 'white-space:normal!important;word-break:break-all!important' },
+  { id: 'rx_container', f: 'regexwrap', q: '.regex-script-container', d: 'width:calc(100% - __V__px)!important;margin-right:0!important' },
+  { f: 'regexwrap', q: '.regex_script_name', d: 'white-space:normal;line-height:1.4' },
+  { f: 'regexwrap', q: '.regex-script-label', d: 'align-items:center;margin-right:0!important' },
+  { f: 'regexwrap', q: '#saved_regex_scripts,#saved_preset_scripts,#saved_scoped_scripts', d: 'padding-right:0!important' },
+  { f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn .xiaobaix-xstack span', d: 'display:none!important' },
+  { id: 'xb_icon', f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn .xiaobaix-xstack', e: '::before', d: "content:'__V__';color:var(--c-pure-black);font-size:16px;opacity:.8;font-weight:100;line-height:1" },
+  { f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn', d: 'background:transparent!important;border:none!important' },
+  { id: 'ui_sec', q: '__UI_sec__', d: 'margin-top:10px' },
+  { id: 'ui_row', q: '__UI_sec__ .__UI_row__', d: 'display:flex;flex-direction:column;gap:4px;margin-top:8px' },
+  { id: 'ui_row_label', q: '__UI_sec__ label.__UI_rowLbl__', d: 'font-size:.85em;opacity:.8;margin-bottom:2px' },
+  { id: 'ui_fields', q: '__UI_sec__ textarea.__UI_ta__,__UI_sec__ input.__UI_input__', d: 'width:100%;box-sizing:border-box;padding:4px 6px;border-radius:4px;font-size:.9em;min-height:1.5em' },
+  { id: 'ui_ta', q: '__UI_sec__ textarea.__UI_ta__', d: 'field-sizing:content!important;min-height:1.5em!important;max-height:300px!important;overflow-y:auto!important;resize:none!important' },
+  { id: 'ui_stat', q: '.__UI_stat__', d: 'font-size:.8em;opacity:.7;margin-top:2px;min-height:1em' },
+  { id: 'ui_opts', q: '.__UI_opts__', d: 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px' },
+];
 
 const UI = {
   root:     '_' + _rnd(),
@@ -79,10 +119,7 @@ const _fc = (f) => f ? (_featCls[f] ||= '_' + _rnd()) : '';
 const _state = RULES.map(r => ({
   ...r,
   q: _expandUiPlaceholders(r.q),
-  cls: '_' + _rnd(),
 }));
-
-const _uiRuleIds = new Set(['ui_sec','ui_row','ui_row_label','ui_fields','ui_ta','ui_stat','ui_opts']);
 
 const DEFAULTS = {
   extensions: false,
@@ -102,6 +139,8 @@ const DEFAULTS = {
   wordReplaceCaseSensitive: false,
   wordReplaceMask: false,
 };
+
+const FEATURE_KEYS = ['extensions','prompts','worldbook','popup','qr','regexwrap','assistantScript','xiaobaixIcon'];
 
 function getSettings() {
   if (!extension_settings[MODULE]) extension_settings[MODULE] = structuredClone(DEFAULTS);
@@ -137,6 +176,7 @@ function _ensureStyle() {
   // Always keep our style element as the LAST child of <head>
   // so it wins cascade order ties against any custom CSS inserted earlier
   if (!_styleEl) {
+    document.querySelectorAll('head style[id^="_awf_style_"]').forEach(el => el.remove());
     _styleEl = document.createElement('style');
     _styleEl.id = _styleId;
   }
@@ -166,86 +206,29 @@ function _buildCss() {
   const s = getSettings();
   const out = [];
   for (const r of _state) {
+    if (r.f && !s[r.f]) continue;
     const body = r.f ? `body.${_fc(r.f)} ` : '';
     let decl = r.d;
     if (decl.indexOf('__V__') >= 0) {
       const v = _dynVal(r, s);
       decl = decl.split('__V__').join(v);
     }
-    if (_uiRuleIds.has(r.id)) {
-      out.push(`${body}${r.q}${r.e || ''}{${decl}}`);
-    } else {
-      const boosted = `.${r.cls}.${r.cls}.${r.cls}`;
-      const forcedDecl = _forceImportant(decl);
-      out.push(`${body}${boosted}${r.e || ''}{${forcedDecl}}`);
-      if (r.f && r.q) {
-        out.push(`${body}${r.q}${r.e || ''}{${forcedDecl}}`);
-      }
-    }
+    const finalDecl = r.f ? _forceImportant(decl) : decl;
+    out.push(`${body}${r.q}${r.e || ''}{${finalDecl}}`);
   }
   return out.join('');
 }
 
-function _tagAll(root = document) {
-  for (const r of _state) {
-    if (_uiRuleIds.has(r.id)) continue;
-    try {
-      const list = root.querySelectorAll ? root.querySelectorAll(r.q) : [];
-      for (const el of list) el.classList.add(r.cls);
-    } catch (e) {}
-  }
-}
-
-function _untagAll() {
-  // 先用当前 _state 里记录的 cls 精确删
-  for (const r of _state) {
-    if (!r.cls) continue;
-    document.querySelectorAll('.' + r.cls).forEach(el => el.classList.remove(r.cls));
-  }
-  // 再用属性选择器兜底：删除所有元素上以 _ 开头的单字母+11位字母数字格式的 class（插件随机 class 格式）
-  // 选取所有带 class 且 class 中含有插件随机 class 特征的元素
-  document.querySelectorAll('[class*=" _"][class]').forEach(el => {
-    const toRemove = [];
-    el.classList.forEach(cls => {
-      if (/^_[a-z][a-z0-9]{11}$/.test(cls)) toRemove.push(cls);
-    });
-    toRemove.forEach(cls => el.classList.remove(cls));
-  });
-}
-
-function _fullCleanup() {
-  // 1. 停所有观察器
-  if (_tagObserver) { _tagObserver.disconnect(); _tagObserver = null; }
-  if (_qrObserver)  { _qrObserver.disconnect();  _qrObserver  = null; }
-  stopReplaceObserver();
-  // 2. 移除所有 id 以 _awf_style_ 开头的 style 标签（不依赖变量，防热重载丢失引用）
-  document.querySelectorAll('head style[id^="_awf_style_"]').forEach(el => el.remove());
-  _styleEl = null;
-  // 3. 移除所有打上的随机 class
-  _untagAll();
-  // 4. 清除 body 上的 feature class
-  Object.values(_featCls).forEach(cls => document.body.classList.remove(cls));
-  // 5. 还原 QR 标签
-  revertLabelTextareas();
-  // 6. 还原词汇替换
-  _compiledRegex = null;
-  restoreOriginals();
-  // 7. 删除 settings 数据并保存
-  delete extension_settings[MODULE];
-  saveSettingsDebounced();
-}
-
 function _syncBody() {
   const s = getSettings();
-  const keys = ['extensions','prompts','worldbook','popup','qr','regexwrap','assistantScript','xiaobaixIcon'];
-  for (const k of keys) document.body.classList.toggle(_fc(k), !!s[k]);
+  for (const k of FEATURE_KEYS) document.body.classList.toggle(_fc(k), !!s[k]);
 }
 
 const applySettings = rafThrottle(function () {
+  const s = getSettings();
   _ensureStyle().textContent = _buildCss();
   _syncBody();
-  _tagAll();
-  if (getSettings().qr) convertLabelsToTextarea(); else revertLabelTextareas();
+  if (s.qr) convertLabelsToTextarea(); else revertLabelTextareas();
 });
 
 function convertLabelsToTextarea(root = document) {
@@ -260,9 +243,6 @@ function convertLabelsToTextarea(root = document) {
     ta.rows = 1;
     input.style.display = 'none';
     input.parentNode.insertBefore(ta, input);
-    for (const r of _state) {
-      if (r.id === 'qr_ta' || r.id === 'qr_ta_focus') ta.classList.add(r.cls);
-    }
     ta.addEventListener('input', () => {
       input.value = ta.value;
       input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -311,18 +291,6 @@ function stopQrObserver() {
   if (_qrObserver) { _qrObserver.disconnect(); _qrObserver = null; }
 }
 
-let _tagObserver = null;
-const _tagScanDebounced = debounce(() => _tagAll(document), 30);
-function startTagObserver() {
-  if (_tagObserver) return;
-  _tagObserver = new MutationObserver(muts => {
-    for (const m of muts) {
-      if (m.addedNodes && m.addedNodes.length) { _tagScanDebounced(); return; }
-    }
-  });
-  _tagObserver.observe(document.body, { childList: true, subtree: true });
-}
-
 const _originalHtml = new WeakMap();
 let _compiledRegex = null;
 
@@ -336,6 +304,10 @@ function compileTerms(s) {
 }
 
 const MASK_CLS = '_awf_mask_';
+
+function _removeMaskStyle() {
+  document.getElementById(MASK_CLS + 'style')?.remove();
+}
 
 function _ensureMaskStyle() {
   if (document.getElementById(MASK_CLS + 'style')) return;
@@ -454,8 +426,10 @@ function applyReplaceToAll() {
   const nodes = document.querySelectorAll(SEL.chatMesText);
   if (!ok) {
     nodes.forEach(el => { if (_originalHtml.has(el)) el.innerHTML = _originalHtml.get(el); });
+    _removeMaskStyle();
     return;
   }
+  if (!maskMode) _removeMaskStyle();
   nodes.forEach(el => processMesText(el, replaceWith, maskMode));
 }
 
@@ -497,6 +471,7 @@ function syncReplaceObserver() {
     stopReplaceObserver();
     _compiledRegex = null;
     restoreOriginals();
+    _removeMaskStyle();
   }
 }
 
@@ -633,16 +608,7 @@ function buildPanel() {
   bind(UI.extChk,     function(){ getSettings().extensions = !!this.checked; applySettings(); saveSettingsDebounced(); });
   bind(UI.wbChk,      function(){ getSettings().worldbook  = !!this.checked; applySettings(); saveSettingsDebounced(); });
   bind(UI.popupChk,   function(){ getSettings().popup      = !!this.checked; applySettings(); saveSettingsDebounced(); });
-  bind(UI.promptsChk, function(){
-    if (!!this.checked) {
-      getSettings().prompts = true;
-      applySettings();
-      saveSettingsDebounced();
-    } else {
-      _fullCleanup();
-      startTagObserver();
-    }
-  });
+  bind(UI.promptsChk, function(){ getSettings().prompts    = !!this.checked; applySettings(); saveSettingsDebounced(); });
   bind(UI.asChk,      function(){ getSettings().assistantScript = !!this.checked; applySettings(); saveSettingsDebounced(); });
 
   $(document.getElementById(UI.qrChk)).on('change', function () {
@@ -700,6 +666,7 @@ function buildPanel() {
     s.wordReplace = !!this.checked;
     $('#' + UI.wrPanel).toggle(s.wordReplace);
     syncReplaceObserver();
+    applySettings();
     saveSettingsDebounced();
   });
 
@@ -746,7 +713,6 @@ jQuery(async () => {
   applySettings();
   buildPanel();
   applySettings();
-  startTagObserver();
   syncReplaceObserver();
   if (getSettings().qr) startQrObserver();
 });
