@@ -61,6 +61,17 @@ const RULES = [
   { f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn .xiaobaix-xstack span', d: 'display:none!important' },
   { id: 'xb_icon', f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn .xiaobaix-xstack', e: '::before', d: "content:'__V__';color:var(--c-pure-black);font-size:16px;opacity:.8;font-weight:100;line-height:1" },
   { f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn', d: 'background:transparent!important;border:none!important' },
+  { f: 'searchbar', q: '#right-nav-panel .menu_button span', d: 'display:none' },
+  { f: 'searchbar', q: 'label[for="character_search_bar"]', d: 'display:none' },
+  { f: 'searchbar', q: '#rm_button_characters', d: 'font-size:0' },
+  { f: 'searchbar', q: '#rm_button_characters :is(h2,h3)', d: 'font-size:0' },
+  { f: 'searchbar', q: '#rm_button_characters :is(i,svg)', d: 'font-size:24px' },
+  { f: 'searchbar', q: '#rm_button_characters', e: '::before', d: 'font-size:24px' },
+  { f: 'searchbar', q: '#rm_button_characters :is(h2,h3)', e: '::before', d: 'font-size:24px' },
+  { f: 'searchbar', q: '*:has(>#form_character_search_form)', d: 'display:flex;flex-flow:row wrap;align-items:stretch' },
+  { f: 'searchbar', q: '*:has(>#form_character_search_form)>*', d: 'flex:0 0 100%' },
+  { f: 'searchbar', q: '#form_character_search_form', d: 'flex:1 1 0;min-width:0;width:auto' },
+  { id: 'sb_gap', f: 'searchbar', q: '*:has(>#form_character_search_form)>:has(>#rm_button_create)', d: 'flex:0 0 auto;order:-1;display:flex;flex-direction:row;align-items:stretch;column-gap:__V__px;margin-right:__V__px;width:fit-content' },
   { id: 'ui_sec', q: '__UI_sec__', d: 'margin-top:10px' },
   { id: 'ui_row', q: '__UI_sec__ .__UI_row__', d: 'display:flex;flex-direction:column;gap:4px;margin-top:8px' },
   { id: 'ui_row_label', q: '__UI_sec__ label.__UI_rowLbl__', d: 'font-size:.85em;opacity:.8;margin-bottom:2px' },
@@ -76,6 +87,9 @@ const UI = {
   promptsChk:'_' + _rnd(),
   wbChk:    '_' + _rnd(),
   popupChk: '_' + _rnd(),
+  sbChk:    '_' + _rnd(),
+  sbGap:    '_' + _rnd(),
+  sbGapRow: '_' + _rnd(),
   qrChk:    '_' + _rnd(),
   qrW:      '_' + _rnd(),
   qrWRow:   '_' + _rnd(),
@@ -139,6 +153,8 @@ const DEFAULTS = {
   assistantScript: false,
   xiaobaixIcon: false,
   xiaobaixIconChar: '❀',
+  searchbar: false,
+  searchBarGap: 8,
   wordReplace: false,
   wordReplaceFind: '',
   wordReplaceWith: '',
@@ -146,7 +162,7 @@ const DEFAULTS = {
   wordReplaceMask: false,
 };
 
-const FEATURE_KEYS = ['extensions','prompts','worldbook','popup','qr','regexwrap','assistantScript','xiaobaixIcon'];
+const FEATURE_KEYS = ['extensions','prompts','worldbook','popup','qr','regexwrap','assistantScript','xiaobaixIcon','searchbar'];
 
 function getSettings() {
   if (!extension_settings[MODULE]) extension_settings[MODULE] = structuredClone(DEFAULTS);
@@ -195,6 +211,10 @@ function _dynVal(r, s) {
   if (r.id === 'xb_icon') return (s.xiaobaixIconChar || '❀').replace(/'/g, "\\'");
   if (r.id === 'rx_container') return String(Math.max(0, parseInt(s.regexPaddingRight, 10) || 0));
   if (r.id === 'qr_label_w') return String(parseInt(s.qrLabelWidth, 10) || 120);
+  if (r.id === 'sb_gap') {
+    const v = parseInt(s.searchBarGap, 10);
+    return String(isNaN(v) || v < 0 ? 8 : v);
+  }
   return '';
 }
 
@@ -571,6 +591,19 @@ function buildPanel() {
                   style="width:44px;padding:1px 4px;border-radius:4px;font-size:.85em;height:20px;box-sizing:border-box;text-align:center;">
                 </div>
               </div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <label class="checkbox_label" for="${UI.sbChk}" style="margin:0;">
+                  <input type="checkbox" id="${UI.sbChk}" ${s.searchbar ? 'checked' : ''}>
+                  <span>搜索栏按钮间距</span>
+                </label>
+                <div id="${UI.sbGapRow}" style="display:${s.searchbar ? 'flex' : 'none'};align-items:center;gap:4px;">
+                  <label for="${UI.sbGap}" style="font-size:.82em;opacity:.8;white-space:nowrap;">间距：</label>
+                  <input type="number" id="${UI.sbGap}" min="0" max="100" step="1"
+                    value="${s.searchBarGap}"
+                    style="width:48px;padding:1px 4px;border-radius:4px;font-size:.85em;height:20px;box-sizing:border-box;">
+                  <span style="font-size:.82em;opacity:.8;">px</span>
+                </div>
+              </div>
             </div>
           </details>
           <label class="checkbox_label" for="${UI.wrChk}" style="margin-top:6px;">
@@ -648,6 +681,24 @@ function buildPanel() {
     const val = raw === '' ? 0 : parseInt(raw, 10);
     if (!isNaN(val) && val >= 0) {
       getSettings().regexPaddingRight = val;
+      applySettings();
+      saveSettingsDebounced();
+    }
+  }, 100));
+
+  $(document.getElementById(UI.sbChk)).on('change', function () {
+    const s = getSettings();
+    s.searchbar = !!this.checked;
+    $('#' + UI.sbGapRow).toggle(s.searchbar);
+    applySettings();
+    saveSettingsDebounced();
+  });
+
+  $(document.getElementById(UI.sbGap)).on('input change', debounce(function () {
+    const raw = String(this.value).trim();
+    const val = raw === '' ? 0 : parseInt(raw, 10);
+    if (!isNaN(val) && val >= 0) {
+      getSettings().searchBarGap = val;
       applySettings();
       saveSettingsDebounced();
     }
