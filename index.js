@@ -594,10 +594,10 @@ function buildPanel() {
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <label class="checkbox_label" for="${UI.sbChk}" style="margin:0;">
                   <input type="checkbox" id="${UI.sbChk}" ${s.searchbar ? 'checked' : ''}>
-                  <span>搜索栏按钮间距</span>
+                  <span>去除图标文字备注</span>
                 </label>
                 <div id="${UI.sbGapRow}" style="display:${s.searchbar ? 'flex' : 'none'};align-items:center;gap:4px;">
-                  <label for="${UI.sbGap}" style="font-size:.82em;opacity:.8;white-space:nowrap;">间距：</label>
+                  <label for="${UI.sbGap}" style="font-size:.82em;opacity:.8;white-space:nowrap;">搜索栏按钮间距：</label>
                   <input type="number" id="${UI.sbGap}" min="0" max="100" step="1"
                     value="${s.searchBarGap}"
                     style="width:48px;padding:1px 4px;border-radius:4px;font-size:.85em;height:20px;box-sizing:border-box;">
