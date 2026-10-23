@@ -61,7 +61,7 @@ const RULES = [
   { f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn .xiaobaix-xstack span', d: 'display:none!important' },
   { id: 'xb_icon', f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn .xiaobaix-xstack', e: '::before', d: "content:'__V__';color:var(--c-pure-black);font-size:16px;opacity:.8;font-weight:100;line-height:1" },
   { f: 'xiaobaixIcon', q: '.xiaobaix-collapse-btn', d: 'background:transparent!important;border:none!important' },
-  { f: 'searchbar', q: '#right-nav-panel .menu_button span', d: 'display:none' },
+  { f: 'searchbar', q: '#right-nav-panel .menu_button:is([class*="fa-"],:has(i,svg)) span', d: 'display:none' },
   { f: 'searchbar', q: 'label[for="character_search_bar"]', d: 'display:none' },
   { f: 'searchbar', q: '#rm_button_characters', d: 'font-size:0' },
   { f: 'searchbar', q: '#rm_button_characters :is(h2,h3)', d: 'font-size:0' },
